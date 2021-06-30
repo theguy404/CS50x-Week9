@@ -7,7 +7,7 @@
 {% block main %}
     <form action="/sell" method="post">
         <div class="form-group">
-            <select class="form-control" name="stock">
+            <select class="form-control" name="symbol">
                 <option>Symbol</option>
                 {% for stock in stocks %}
                 <option>{{ stock.symbol }}</option>

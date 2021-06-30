@@ -15,6 +15,12 @@
 
                 <h2>Add a Birthday</h2>
                 <!-- TODO: Create a form for users to submit a name, a month, and a day -->
+                <form action="/" method="POST">
+                    <input type="text" placeholder="Name" name="name">
+                    <input type="text" placeholder="Month" name="month">
+                    <input type="text" placeholder="Day" name="day">
+                    <input type=submit value="Add Birthday">
+                </form>
             </div>
 
             <div class="section">
@@ -29,6 +35,12 @@
                     </thead>
                     <tbody>
                         <!-- TODO: Loop through the database entries to display them in this table -->
+                        {% for item in items %}
+                            <tr>
+                                <td>{{ item.name }}</td>
+                                <td>{{ item.day }}/{{ item.month }}</td>
+                            </tr>
+                        {% endfor %}
                     </tbody>
                 </table>
             </div>

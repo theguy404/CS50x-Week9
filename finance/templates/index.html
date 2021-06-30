@@ -21,8 +21,8 @@
                     <td>{{ stock.symbol }}</td>
                     <td>{{ stock.name }}</td>
                     <td>{{ stock.owned }}</td>
-                    <td>{{ stock.price }}</td>
-                    <td>{{ stock.price * stock.owned }}</td>
+                    <td>{{ stock.price | usd }}</td>
+                    <td>{{ (stock.price * stock.owned) | usd }}</td>
                 </tr>
             {% endfor %}
             <tr>
@@ -30,7 +30,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td>{{ cash }}</td>
+                <td>{{ cash | usd }}</td>
             </tr>
         </tbody>
         <tfoot>
@@ -39,7 +39,7 @@
                 <td></td>
                 <td></td>
                 <td></td>
-                <td><strong>{{ value }}</strong></td>
+                <td><strong>{{ value | usd }}</strong></td>
             </tr>
         </tfoot>
     </table>
