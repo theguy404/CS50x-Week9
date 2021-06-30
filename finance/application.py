@@ -41,6 +41,7 @@ db = SQL("sqlite:///finance.db")
 if not os.environ.get("API_KEY"):
     raise RuntimeError("API_KEY not set")
 
+
 @app.route("/")
 @login_required
 def index():
@@ -51,7 +52,7 @@ def index():
                         id=session.get("user_id"),
                         owned=0)
     user = db.execute("SELECT cash FROM users WHERE id = :id",
-                        id=session.get("user_id"))
+                      id=session.get("user_id"))
     value = user[0]['cash']
     for i in range(len(stocks)):
         total = stocks[i]['price'] * stocks[i]['shares']
@@ -66,7 +67,7 @@ def buy():
     if request.method == "POST":
         # Get Cash from database for this user
         cash = db.execute("SELECT cash FROM users WHERE id = :id",
-                            id=session.get("user_id"))
+                          id=session.get("user_id"))
         cash = cash[0]['cash']
         
         # Get the stock price from the api
@@ -88,21 +89,21 @@ def buy():
         else:
             # Adds shares to users account
             db.execute("INSERT INTO transactions(type,owned,user_id,symbol,name,price,shares) VALUES(:type, :owned, :id, :symbol, :name, :price, :shares)",
-                type="buy",
-                owned=request.form.get("shares"),
-                id=session.get("user_id"),
-                symbol=request.form.get("symbol"),
-                name=stockName,
-                price=stockPrice,
-                shares=request.form.get("shares"))
+                       type="buy",
+                       owned=request.form.get("shares"),
+                       id=session.get("user_id"),
+                       symbol=request.form.get("symbol"),
+                       name=stockName,
+                       price=stockPrice,
+                       shares=request.form.get("shares"))
             
             # Removes funds from users cash
             cost = stockPrice * float(request.form.get("shares"))
             db.execute("UPDATE users SET cash = :remaining WHERE id = :id",
-                        remaining=cash - cost,
-                        id=session.get("user_id"))
+                       remaining=cash - cost,
+                       id=session.get("user_id"))
                         
-            #return user to index
+            # return user to index
             flash("Bought!")
             return index()
     else:
@@ -121,7 +122,7 @@ def history():
     """Show history of transactions"""
     
     transactions = db.execute("SELECT * FROM transactions WHERE user_id = :id",
-            id=session.get("user_id"))
+                              id=session.get("user_id"))
     return render_template("history.html", transactions=transactions)
 
 
@@ -207,8 +208,8 @@ def register():
             return apology("Username Taken", 400)
         
         db.execute("INSERT INTO users(username,hash) VALUES(:username, :hash)",
-                    username=request.form.get("username"),
-                    hash=generate_password_hash(request.form.get("password"), ))
+                   username=request.form.get("username"),
+                   hash=generate_password_hash(request.form.get("password"), ))
         session.get("user_id")
         return redirect("/")
         
@@ -224,9 +225,9 @@ def sell():
     if request.method == "POST":
         # check if user has enough stocks to sell of selected symbol
         stocks = db.execute("SELECT * FROM transactions WHERE user_id = :id AND owned > :owned AND symbol = :symbol",
-                        id=session.get("user_id"),
-                        owned=0,
-                        symbol=request.form.get("symbol"))
+                            id=session.get("user_id"),
+                            owned=0,
+                            symbol=request.form.get("symbol"))
         count = 0
         toSell = int(request.form.get("shares"))
         for i in range(len(stocks)):
@@ -243,40 +244,40 @@ def sell():
                 if toSell > stocks[i]['owned']:
                     toSell = toSell - stocks['owned']
                     db.execute("UPDATE transactions SET owned = :owned WHERE transaction_id = :id",
-                        owned=0,
-                        id=stocks[i]['transaction_id'])
+                               owned=0,
+                               id=stocks[i]['transaction_id'])
                         
                 else:
                     db.execute("UPDATE transactions SET owned = :owned WHERE transaction_id = :id",
-                        owned=stocks[i]['owned'] - toSell,
-                        id=stocks[i]['transaction_id'])
+                               owned=stocks[i]['owned'] - toSell,
+                               id=stocks[i]['transaction_id'])
                     toSell = 0
                         
             # add money of shares to sell times current stock price to cash
             addmoney = stockPrice['price'] * float(request.form.get("shares"))
             user = db.execute("SELECT * FROM users WHERE id = :id",
-                        id=session.get("user_id"))
+                              id=session.get("user_id"))
             db.execute("UPDATE users SET cash = :newcash WHERE id = :id",
-                        newcash=float(user[0]['cash']) + addmoney,
-                        id=session.get("user_id"))
+                       newcash=float(user[0]['cash']) + addmoney,
+                       id=session.get("user_id"))
                         
             # add sold transaction to history
             db.execute("INSERT INTO transactions(type,owned,user_id,symbol,name,price,shares) VALUES(:type, :owned, :id, :symbol, :name, :price, :shares)",
-                type="sell",
-                owned=0,
-                id=session.get("user_id"),
-                symbol=request.form.get("symbol"),
-                name=stockPrice['name'],
-                price=stockPrice['price'],
-                shares=request.form.get("shares"))
+                       type="sell",
+                       owned=0,
+                       id=session.get("user_id"),
+                       symbol=request.form.get("symbol"),
+                       name=stockPrice['name'],
+                       price=stockPrice['price'],
+                       shares=request.form.get("shares"))
                 
             # display index with updates and sold message
             flash("SOLD!")
             return index()
     else:
         stocks = db.execute("SELECT DISTINCT symbol FROM transactions WHERE user_id = :id AND owned > :owned",
-                        id=session.get("user_id"),
-                        owned=0)
+                            id=session.get("user_id"),
+                            owned=0)
         return render_template("sell.html", stocks=stocks)
 
 
